@@ -93,7 +93,8 @@ namespace GZipTest
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error(Write): {ex.Message}.");
+                if (interrupted)
+                    Console.WriteLine($"Error(Write): {ex.Message}.");
                 interrupted = true;
             }
         }
@@ -128,7 +129,8 @@ namespace GZipTest
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error(Read): {ex.Message}.");
+                if (interrupted)
+                    Console.WriteLine($"Error(Read): {ex.Message}.");
                 interrupted = true;
             }
         }
@@ -158,7 +160,8 @@ namespace GZipTest
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error({mainRoutineName}): {ex.Message}.");
+                if (interrupted)
+                    Console.WriteLine($"Error({mainRoutineName}): {ex.Message}.");
                 interrupted = true;
             }
         }
@@ -198,7 +201,8 @@ namespace GZipTest
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error(Read): {ex.Message}.");
+                if (interrupted)
+                    Console.WriteLine($"Error(Read): {ex.Message}.");
                 interrupted = true;
             }
         }
@@ -229,7 +233,8 @@ namespace GZipTest
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error({mainRoutineName}): {ex.Message}.");
+                if (interrupted)
+                    Console.WriteLine($"Error({mainRoutineName}): {ex.Message}.");
                 interrupted = true;
             }
         }

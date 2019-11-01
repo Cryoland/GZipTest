@@ -22,7 +22,7 @@ namespace GZipTest
         {
             lock (rflag)
             {
-                // ждать осбождения места в очереди, чтобы не переполнять память
+                // ждать освобождения места в очереди, чтобы не переполнять память
                 while (!terminated && queueToRead.Count >= queueLimit)
                     Monitor.Wait(rflag);
 
@@ -31,9 +31,7 @@ namespace GZipTest
 
                 // наполнение очереди новыми необработанными фрагментами
                 queueToRead.Enqueue(new FileChunk(readBlockID++, data));
-                #region debug
-                ColoredConsole.WriteLine(ConsoleColor.Green, $"chunk#{queueToRead.Last().ID} added to compress in Thread#{Thread.CurrentThread.ManagedThreadId}");
-                #endregion
+
                 // просигналить всем ожидающим потокам
                 Monitor.PulseAll(rflag);
             }
@@ -47,10 +45,8 @@ namespace GZipTest
                     Monitor.Wait(rflag);             
                 
                 var chunk = (queueToRead.Count == 0) ? null : queueToRead.Dequeue();
-                #region debug
-                if (chunk != null) ColoredConsole.WriteLine(ConsoleColor.Blue, $"chunk#{chunk.ID} released for compressing in Thread#{Thread.CurrentThread.ManagedThreadId}");
-                #endregion
-                // просигналить потоку наполнения очереди
+
+                // просигналить всем ожидающим потокам
                 Monitor.PulseAll(rflag);
                 return chunk;
             }
@@ -61,7 +57,7 @@ namespace GZipTest
         {
             lock (wflag)
             {
-                // ждем неуспевающий поток
+                // ждать неуспевающий поток
                 while (!terminated && chunk.ID != writeBlockID)
                     Monitor.Wait(wflag);
 
@@ -75,9 +71,7 @@ namespace GZipTest
                 // наполнение очереди обработанными фрагментами
                 queueToWrite.Enqueue(chunk);
                 writeBlockID++;
-                #region debug
-                ColoredConsole.WriteLine(ConsoleColor.Red, $"chunk#{chunk.ID} added to write");  
-                #endregion
+
                 Monitor.PulseAll(wflag);
             }
         }
@@ -90,9 +84,7 @@ namespace GZipTest
                     Monitor.Wait(wflag);
 
                 var chunk = (queueToWrite.Count == 0) ? null : queueToWrite.Dequeue();
-                #region debug
-                if (queueToWrite.Count != 0) ColoredConsole.WriteLine(ConsoleColor.DarkYellow, $"chunk#{chunk.ID} released for writing in Thread#{Thread.CurrentThread.ManagedThreadId}");
-                #endregion
+
                 Monitor.PulseAll(wflag);
                 return chunk;
             }
@@ -109,17 +101,6 @@ namespace GZipTest
                 }
                 Monitor.PulseAll(rflag);
             }
-        }
-    }
-
-    static class ColoredConsole
-    {       
-        public static void WriteLine(ConsoleColor color, params object[] output)
-        {
-            Console.ForegroundColor = color;
-            foreach(object obj in output)
-                Console.WriteLine(obj);
-            Console.ForegroundColor = ConsoleColor.White;
         }
     }
 }
