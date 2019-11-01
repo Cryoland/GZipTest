@@ -9,14 +9,14 @@ namespace GZipTest
     {
         private readonly object rflag = new object();
         private readonly object wflag = new object();
-        private volatile bool terminated;
-        private volatile bool readFinished;
-        private volatile bool processed;
+        private volatile bool terminated = false;
+        private volatile bool readFinished = false;
+        private volatile bool processed = false;
         private Queue<FileChunk> queueToRead = new Queue<FileChunk>();
         private Queue<FileChunk> queueToWrite = new Queue<FileChunk>();
         private const int queueLimit = 5;
-        private int readBlockID;
-        private volatile int writeBlockID;
+        private volatile int readBlockID = 0;
+        private volatile int writeBlockID = 0;
 
         public void AddToRead(byte[] data)
         {
@@ -51,22 +51,22 @@ namespace GZipTest
                 if (chunk != null) ColoredConsole.WriteLine(ConsoleColor.Blue, $"chunk#{chunk.ID} released for compressing in Thread#{Thread.CurrentThread.ManagedThreadId}");
                 #endregion
                 // просигналить потоку наполнения очереди
-                Monitor.Pulse(rflag);
+                Monitor.PulseAll(rflag);
                 return chunk;
             }
         }
         public void ReadFinished() => readFinished = true;
-        public void MainRoutineCompleted() => processed = true;
+        public void ProcessingCompleted() => processed = true;
         public void AddToWrite(FileChunk chunk)
         {
             lock (wflag)
             {
-                // ждать осбождения места в очереди, чтобы не переполнять память
-                while (!terminated && queueToWrite.Count >= queueLimit)
+                // ждем неуспевающий поток
+                while (!terminated && chunk.ID != writeBlockID)
                     Monitor.Wait(wflag);
 
-                // ждем неуспевающий поток
-                if (chunk.ID != writeBlockID)
+                // ждать освобождения места в очереди, чтобы не переполнять память
+                while (!terminated && queueToWrite.Count >= queueLimit)
                     Monitor.Wait(wflag);
 
                 if (terminated)
@@ -78,7 +78,7 @@ namespace GZipTest
                 #region debug
                 ColoredConsole.WriteLine(ConsoleColor.Red, $"chunk#{chunk.ID} added to write");  
                 #endregion
-                Monitor.Pulse(wflag);
+                Monitor.PulseAll(wflag);
             }
         }
         public FileChunk DequeueForWriting()
@@ -93,7 +93,7 @@ namespace GZipTest
                 #region debug
                 if (queueToWrite.Count != 0) ColoredConsole.WriteLine(ConsoleColor.DarkYellow, $"chunk#{chunk.ID} released for writing in Thread#{Thread.CurrentThread.ManagedThreadId}");
                 #endregion
-                Monitor.Pulse(wflag);
+                Monitor.PulseAll(wflag);
                 return chunk;
             }
         }

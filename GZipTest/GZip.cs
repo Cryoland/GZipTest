@@ -52,7 +52,7 @@ namespace GZipTest
 
             new Thread(() => {
                 WaitHandle.WaitAll(flags);
-                taskmgr.MainRoutineCompleted();
+                taskmgr.ProcessingCompleted();
             }){ Name = $"ObserverThread" }.Start();
 
             var writeThread = new Thread(Write) { Name = $"{finalState}DataWriteThread" };

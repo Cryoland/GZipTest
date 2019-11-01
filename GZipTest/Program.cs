@@ -10,8 +10,8 @@ namespace GZipTest
         {
             //args = new string[3];
             //args[0] = @"compress";
-            //args[1] = @"1.mkv";
-            //args[2] = @"1.mkv.gz";
+            //args[1] = @"2.txt";
+            //args[2] = @"2.gz";
 
             using (var mutex = new Mutex(false, "GZipTest|Cryoland"))
             {
@@ -47,7 +47,7 @@ namespace GZipTest
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine($"Error: {e.StackTrace} {e.Message}");
+                    Console.WriteLine($"Error: {e.Message}");
                     return 1;
                 }
             }          
