@@ -51,8 +51,22 @@ namespace GZipTest
                 return chunk;
             }
         }
-        public void ReadFinished() => readFinished = true;
-        public void ProcessingCompleted() => processed = true;
+        public void ReadFinished()
+        {
+            lock (rflag)
+            {
+                readFinished = true;
+                Monitor.PulseAll(rflag);
+            }
+        }
+        public void ProcessingCompleted()
+        {
+            lock (wflag)
+            {
+                processed = true;
+                Monitor.PulseAll(wflag);
+            }
+        }
         public void AddToWrite(FileChunk chunk)
         {
             lock (wflag)
