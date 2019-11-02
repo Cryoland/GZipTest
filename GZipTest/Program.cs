@@ -3,10 +3,10 @@ using System.Threading;
 
 namespace GZipTest
 {
-    class Program
+    public class Program
     {
         static GZip gzip;
-        static int Main(string[] args)
+        public static int Main(string[] args)
         {
             //args = new string[3];
             //args[0] = @"compress";
