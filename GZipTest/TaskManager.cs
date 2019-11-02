@@ -42,8 +42,11 @@ namespace GZipTest
             {
                 // ожидать наполнения очереди необработанными фрагментами
                 while (!terminated && !readFinished && queueToRead.Count < 1)
-                    Monitor.Wait(rflag);             
-                
+                    Monitor.Wait(rflag);
+
+                if (terminated)
+                    throw new Exception("Terminated");
+
                 var chunk = (queueToRead.Count == 0) ? null : queueToRead.Dequeue();
 
                 // просигналить всем ожидающим потокам
@@ -96,6 +99,9 @@ namespace GZipTest
                 // ожидать наполнения очереди
                 while (!terminated && !processed && queueToWrite.Count < 1)
                     Monitor.Wait(wflag);
+
+                if (terminated)
+                    throw new Exception("Terminated");
 
                 var chunk = (queueToWrite.Count == 0) ? null : queueToWrite.Dequeue();
 

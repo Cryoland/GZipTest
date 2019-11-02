@@ -34,12 +34,13 @@ namespace GZipTest
         public void Interrupt()
         {
             interrupted = true;
+            taskmgr.Stop();
             flags.ToList().ForEach(flag => flag.Set());
         }
         public int State() => !interrupted && ok ? 0 : 1;
         public void Run()
         {
-            Console.WriteLine($"{mainRoutineName}..");
+            Console.Write($"{mainRoutineName}..");
             sw.Start();
 
             new Thread(Read) { Name = $"{initState}DataReadThread" }.Start();
@@ -123,9 +124,11 @@ namespace GZipTest
                         data = new byte[selection];
                         fs.Read(data, 0, selection);
                         taskmgr.AddToRead(data);
+                        Console.Write($"\r{mainRoutineName}.. {string.Format("{0:P2}", (double)fs.Position / fs.Length)}");
                     }
                 }
                 taskmgr.ReadFinished();
+                Console.Write("\n");
             }
             catch (Exception ex)
             {
@@ -194,10 +197,12 @@ namespace GZipTest
                         header.CopyTo(data, 0);
                         fs.Read(data, header.Length, selection - header.Length);
 
+                        Console.Write($"\r{mainRoutineName}.. {string.Format("{0:P2}", (double)fs.Position / fs.Length)}");
                         taskmgr.AddToRead(data);
                     }
                 }
                 taskmgr.ReadFinished();
+                Console.Write("\n");
             }
             catch (Exception ex)
             {

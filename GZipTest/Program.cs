@@ -26,7 +26,7 @@ namespace GZipTest
                 {
                     if (e.SpecialKey == ConsoleSpecialKey.ControlC)
                     {
-                        Console.WriteLine("Interruption..");
+                        Console.WriteLine("\nInterruption..");
                         e.Cancel = true;
                         gzip?.Interrupt();
                     }
