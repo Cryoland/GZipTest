@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace GZipTest
+﻿namespace GZipTest
 {
     class FileChunk
     {

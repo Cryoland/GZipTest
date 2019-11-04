@@ -1,11 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.IO.Compression;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Diagnostics;
 
 namespace GZipTest
@@ -90,13 +87,16 @@ namespace GZipTest
                         fstream.Write(chunk.Data, 0, chunk.Data.Length);
                     }
                 }
-                taskmgr.Stop();
             }
             catch (Exception ex)
             {
-                if (interrupted)
+                if (!interrupted)
                     Console.WriteLine($"Error(Write): {ex.Message}.");
                 interrupted = true;
+            }
+            finally
+            {
+                taskmgr.Stop();
             }
         }
     }
@@ -127,14 +127,17 @@ namespace GZipTest
                         Console.Write($"\r{mainRoutineName}.. {string.Format("{0:P2}", (double)fs.Position / fs.Length)}");
                     }
                 }
-                taskmgr.ReadFinished();
                 Console.Write("\n");
             }
             catch (Exception ex)
             {
-                if (interrupted)
+                if (!interrupted)
                     Console.WriteLine($"Error(Read): {ex.Message}.");
                 interrupted = true;
+            }
+            finally
+            {
+                taskmgr.ReadFinished();
             }
         }
         override protected void MainRoutine(object n)
@@ -163,7 +166,7 @@ namespace GZipTest
             }
             catch (Exception ex)
             {
-                if (interrupted)
+                if (!interrupted)
                     Console.WriteLine($"Error({mainRoutineName}): {ex.Message}.");
                 interrupted = true;
             }
@@ -201,14 +204,17 @@ namespace GZipTest
                         taskmgr.AddToRead(data);
                     }
                 }
-                taskmgr.ReadFinished();
                 Console.Write("\n");
             }
             catch (Exception ex)
             {
-                if (interrupted)
+                if (!interrupted)
                     Console.WriteLine($"Error(Read): {ex.Message}.");
                 interrupted = true;
+            }
+            finally
+            {
+                taskmgr.ReadFinished();
             }
         }
         override protected void MainRoutine(object n)
@@ -238,7 +244,7 @@ namespace GZipTest
             }
             catch (Exception ex)
             {
-                if (interrupted)
+                if (!interrupted)
                     Console.WriteLine($"Error({mainRoutineName}): {ex.Message}.");
                 interrupted = true;
             }
