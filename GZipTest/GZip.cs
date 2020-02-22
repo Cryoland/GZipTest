@@ -22,8 +22,7 @@ namespace GZipTest
         protected string initState;
         protected string finalState;
 
-        public GZip() { }
-        public GZip(string input, string output)
+        protected GZip(string input, string output)
         {
             inputName = input;
             outputName = output;
